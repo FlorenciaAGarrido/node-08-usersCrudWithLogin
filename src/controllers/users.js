@@ -1,15 +1,16 @@
 const express = require('express');
-const User = require('../models/user');
-
+const userService = require('../services/userService');
+const Success = require('../handlers/successHandler');
+ 
 /**
- * 
+ *  
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
 const getAllUsers = async (req, res, next) => {
     try {
-        const users = await User.find();
-        res.json(users);
+        const users = await userService.findAll(req.query.filter, req.query.optiones);
+        res.json(new Success(users));
     }catch (err) {
         next(err);
     }
@@ -23,13 +24,9 @@ const getAllUsers = async (req, res, next) => {
 const createUser = async (req, res, next) => {
     try {
         let user = req.body;
-        user = await User.create(user);
+        user = await userService.save(user);
 
-        const result = {
-            message: 'User created',
-            user
-        }
-        res.status(201).json(result);
+        res.status(201).json(new Success(user));
     }catch (err) {
         next(err);
     }
@@ -45,14 +42,9 @@ const updateUser = async (req, res, next) => {
         const { id } = req.params;
         let user = req.body;
 
-        await User.findByIdAndUpdate(id, user);
-        user = await User.findById(id);
-        
-        const result = {
-            message: 'User updated',
-            user
-        }
-        res.status(200).json(result);
+        const userUpdated = await userService.update(id, user);
+    
+        res.status(200).json(new Success(userUpdated));
     }catch (err) {
         next(err);
     }
@@ -63,12 +55,10 @@ const updateUser = async (req, res, next) => {
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
-const updatePartialUser = (req, res, next) => {
+const getById = async (req, res, next) => {
     try {
-        const result = {
-        message: 'User updated with patch'
-        }
-        res.json(result);
+        const user = await userService.findById(req.params.id);
+        res.json(new Success(user));
     }catch (err) {
         next(err);
     }
@@ -82,14 +72,15 @@ const updatePartialUser = (req, res, next) => {
 const deleteUser = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const user = await User.findById(id);
-        user.remove();
-
+        const user = await userService.remove(id);
+        
+        
         const result = {
-            mesagge: `User with id: ${id} deleted`
+            messsage: `User with id: ${id} deleted`,
+            user
         }
-    res.json(result);
-    }catch (err) {
+        res.json(new Success(user));
+    } catch (err) {
         next(err);
     }
 };
@@ -98,7 +89,7 @@ module.exports = {
     getAllUsers,
     createUser,
     updateUser,
-    updatePartialUser,
+    getById,
     deleteUser
 }
 
