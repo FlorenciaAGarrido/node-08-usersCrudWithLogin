@@ -4,13 +4,13 @@ const swaggerUi = require('swagger-ui-express');
 const config = require('../../config');
 const logger = require('../logger');
 
-
 class ExpressServer {
 
     constructor() {
 
         this.app = express();
         this.port = config.port;
+        this.basePathAuth = `${config.api.prefix}/auth`;
         this.basePathUser = `${config.api.prefix}/users`;
 
         this._middlewares();
@@ -32,7 +32,7 @@ class ExpressServer {
         this.app.head("/status", (req, res) => {
             res.status(200).end();
         });
-
+        this.app.use(this.basePathAuth, require('../../routes/auth'));
         this.app.use(this.basePathUser, require('../../routes/users')); 
     }
 
