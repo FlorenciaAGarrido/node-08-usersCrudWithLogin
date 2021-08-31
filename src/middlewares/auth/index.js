@@ -1,5 +1,5 @@
-const { check } = require('express-validator'); 
-const {validationResult} = require('../commons');
+const { check } = require('express-validator');
+const { validationResult } = require('../commons');
 const { validToken, validRole } = require('../../services/authService');
 
 
@@ -11,11 +11,11 @@ const postLoginRequestValidations = [
     _emailRequired,
     _emailValid,
     _passwordRequired,
-    validationResult    
+    validationResult
 ]
 
 const validJWT = async (req, res, next) => {
-    try{
+    try {
         const token = req.header('Authorization');
         const user = await validToken(token);
         req.user = user;
@@ -28,10 +28,10 @@ const validJWT = async (req, res, next) => {
 const hasRole = (...roles) => {
     return (req, res, next) => {
         try {
-        validRole(req.user, ...roles);
-        next();
+            validRole(req.user, ...roles);
+            next();
         } catch (err) {
-            next (err);
+            next(err);
         }
     }
 }

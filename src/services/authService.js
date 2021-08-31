@@ -14,18 +14,18 @@ const login = async(email, password) => {
         const user = await userService.findByEmail(email);
         
         if(!user){
-            throw new AppError('Authentication failed! Email / password does not corecct.', 400);
+            throw new AppError('Authentication failed! Email / password does not corecct.', 401);
         }
 
         // Validacion de usuario habilitado
         if(!user.enable){
-            throw new AppError('Authentication failed! User disabled.', 400);
+            throw new AppError('Authentication failed! User disabled.', 401);
         }
 
         //Validacion de password 
         const validPassword = await bcrypt.compare(password, user.password);
         if(!validPassword){
-            throw new AppError('Authentication failed! Email / password does not correct.', 400);
+            throw new AppError('Authentication failed! Email / password does not correct.', 401);
         }
 
         // Generar JWT
