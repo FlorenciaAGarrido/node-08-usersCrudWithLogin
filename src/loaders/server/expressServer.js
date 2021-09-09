@@ -1,9 +1,9 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const config = require('../../config');
 const logger = require('../logger');
-
 
 class ExpressServer {
 
@@ -11,6 +11,7 @@ class ExpressServer {
 
         this.app = express();
         this.port = config.port;
+        this.basePathAuth = `${config.api.prefix}/auth`;
         this.basePathUser = `${config.api.prefix}/users`;
 
         this._middlewares();
@@ -33,12 +34,19 @@ class ExpressServer {
             res.status(200).end();
         });
 
+        this.app.get("/test-report", (req, res) => {
+            res.sendFile(
+                path.join(__dirname + '../../../../postman/report.html')
+            );
+        });
+
+        this.app.use(this.basePathAuth, require('../../routes/auth'));
         this.app.use(this.basePathUser, require('../../routes/users')); 
     }
 
     _notFound() {
         this.app.use((req, res, next) => {
-            const err = new Error("Not Found");
+            const err = new Error("Not Found"); 
             err.status = 404;
             err.code = 404;
             next(err);
@@ -56,7 +64,8 @@ class ExpressServer {
             const body = {
                 error: {
                     code,
-                    message: err.message
+                    message: err.message,
+                    detail: err.data
                 }
             }
             res.json(body);
